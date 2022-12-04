@@ -14,15 +14,15 @@
 
 ### Web
 
-To prevent conflicts these fonts are named `Jun Mono Webfont`.
+The webfont is only supported in the `.woff2` format.
 
-- Jun Mono - [Download Webfont](./web/jun-mono.otf)
-- Jun Sans - [Download Webfont](./web/jun-sans.otf)
+- Jun Mono Webfont - [Download Webfont](./web/jun-mono.woff2)
+- Jun Sans Webfont - [Download Webfont](./web/jun-sans.woff2)
 
 ```css
 @font-face {
     font-family: 'Jun Mono Webfont';
-    src: url('jun-mono.otf') format("opentype");
+    src: url('jun-mono.woff2') format("woff2");
 }
 
 html {
