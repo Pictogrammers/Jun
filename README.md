@@ -1,9 +1,9 @@
 # Jun Mono & Jun Sans
 
 - Jun Mono
-  - 20pt Monospace Font
+  - 20pt Monospace Pixel Font
 - Jun Sans
-  - 20pt Sans Serif Font
+  - 20pt Sans Serif Pixel Font
 
 ## Usage
 
