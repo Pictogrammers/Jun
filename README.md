@@ -2,7 +2,7 @@
 
 - Jun Mono
   - 20pt Monospace Pixel Font
-- Jun Sans
+- Jun Sans (Work in Progress)
   - 20pt Sans Serif Pixel Font
 
 ## Usage
