@@ -1,11 +1,15 @@
 # Jun Mono & Jun Sans
 
+https://pictogrammers.github.io/@pictogrammers/jun/
+
 - Jun Mono
   - 20pt Monospace Pixel Font
 - Jun Sans (Work in Progress)
   - 20pt Sans Serif Pixel Font
 
 ## Usage
+
+The fonts can be used by installing them locally or embedding them into a website.
 
 ### Desktop
 
@@ -16,8 +20,8 @@
 
 The webfont is only supported in the `.woff2` format.
 
-- Jun Mono Webfont - [Download Webfont](./web/jun-mono.woff2)
-- Jun Sans Webfont - [Download Webfont](./web/jun-sans.woff2)
+- Jun Mono Webfont - [Download Webfont](./jun-mono.woff2)
+- Jun Sans Webfont - [Download Webfont](./jun-sans.woff2)
 
 ```css
 @font-face {
