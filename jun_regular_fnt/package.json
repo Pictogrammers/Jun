@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "jun_regular_fnt",
+  "version": "1.0.0",
+  "description": "Jun Regular Font",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "write-bmfont-binary": "^1.0.3"
+  }
+}

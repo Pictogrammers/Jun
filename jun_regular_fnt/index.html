@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
+    <style>
+        body {
+            margin: 1rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        div.page {
+            display: inline-flex;
+            position: relative;
+            background: #FFF;
+            box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
+        }
+        div.page > img {
+            image-rendering: pixelated;
+        }
+        div.page > div {
+            position: absolute;
+            background: rgba(255, 0, 0, 0.3);
+            box-sizing: border-box;
+        }
+        div.preview {
+            display: flex;
+            background: #FFF;
+            box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
+        }
+        div.preview > canvas {
+            image-rendering: pixelated;
+        }
+        div.preview > canvas:first-child {
+            margin-left: 0 !important;
+        }
+        p {
+            color: #666;
+            margin: 0 0.5rem 1rem 0.5rem;
+        }
+        textarea {
+            border: 1px solid #111;
+            border-radius: 0.25rem;
+            resize: none;
+            width: 20rem;
+            height: 3rem;
+            padding: 0.5rem;
+        }
+    </style>
+    <script>
+        /**
+         * Super ugly code, but good enough for testing.
+         */
+        const characters = new Map();
+        const pages = new Map();
+        const imagePages = new Map();
+        const info = new Map();
+        const kernings = new Map();
+        function drawCharacters(parentEle, chars) {
+            chars.forEach(char => {
+                const box = document.createElement('div');
+                box.style.left = `${char.x * 2}px`;
+                box.style.top = `${char.y * 2}px`;
+                box.style.width = `${char.width * 2}px`;
+                box.style.height = `${char.height * 2}px`;
+                box.title = `id: ${char.id}`;
+                parentEle.appendChild(box);
+                characters.set(char.id, char);
+            });
+        }
+        function whiteToTransparent(ctx, width, height) {
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    const color = ctx.getImageData(x, y, 1, 1).data;
+                    const [r, g, b] = color;
+                    if (r === 255 && g === 255 && b === 255) {
+                        ctx.clearRect(x, y, 1, 1);
+                    }
+                }
+            }
+        }
+        function updateText(preview, text) {
+            // Clear preview
+            while(preview.firstChild){
+                preview.removeChild(preview.firstChild);
+            }
+            // Insert
+            let previousCode = null;
+            text.split('').forEach(char => {
+                const code = char.charCodeAt(0);
+                const amount = kernings.get(`${previousCode}:${code}`) || 0;
+                const meta = characters.get(code);
+                const ele = document.createElement('canvas');
+                const ctx = ele.getContext('2d', { willReadFrequently: true });
+                ele.width = meta.width;
+                ele.height = meta.height;
+                ele.style.width = `${meta.width}px`;
+                ele.style.height = `${meta.height}px`;
+                ctx.clearRect(0, 0, meta.width, meta.height);
+                ctx.drawImage(
+                    imagePages.get(meta.page),
+                    meta.x, meta.y, meta.width, meta.height,
+                    0, 0, meta.width, meta.height
+                );
+                whiteToTransparent(ctx, meta.width, meta.height);
+                // Default spacing
+                let spaceHorizontal = info.get('spacing')[0];
+                spaceHorizontal += amount;
+                let spaceVertical = info.get('spacing')[1];
+                ele.style.marginLeft = `${spaceHorizontal}px`;
+                ele.title = `kerning: ${spaceHorizontal}`;
+                preview.appendChild(ele);
+                previousCode = code;
+            });
+        }
+        function process(data) {
+            Object.keys(data.info).forEach(key => {
+                info.set(key, data.info[key]);
+            });
+            data.pages.forEach((page, pageIndex) => {
+                pages.set(pageIndex, page);
+                const parentEle = document.createElement('div');
+                parentEle.classList.add('page');
+                const img = document.createElement('img');
+                img.addEventListener('load', (e) => {
+                    e.target.style.width = `${e.target.offsetWidth * 2}px`;
+                });
+                img.src = page;
+                parentEle.appendChild(img);
+                drawCharacters(
+                    parentEle,
+                    data.chars.filter(char => char.page === pageIndex)
+                );
+                document.body.appendChild(parentEle);
+                // Kerning Testing
+                const preview = document.createElement('div');
+                preview.classList.add('preview');
+                const textarea = document.createElement('textarea');
+                textarea.addEventListener('input', (e) => {
+                    const { value } = e.target;
+                    updateText(preview, value);
+                });
+                // Hover Info
+                const hoverInfo = document.createElement('p');
+                hoverInfo.appendChild(document.createTextNode('Hover to see char id'));
+                document.body.appendChild(hoverInfo);
+                // Textarea
+                document.body.appendChild(textarea);
+                // Preview
+                document.body.appendChild(preview);
+            });
+            // Render Kerning Info
+            const table = document.createElement('table');
+            const thTr = document.createElement('tr');
+            const th1 = document.createElement('th');
+            table.appendChild(thTr);
+            document.body.appendChild(table);
+            data.kernings.forEach((kern, pageIndex) => {
+                const { first, second, amount } = kern;
+                kernings.set(`${first}:${second}`, amount);
+            });
+        }
+        window.addEventListener('load', () => {
+            const file = 'jun_regular.json';
+            console.log(`Loading '${file}'...`);
+            fetch(file, {
+                method: 'GET'
+            }).then(async (response) => {
+                const json = await response.json();
+                // We need all the image data also cached...
+                const promises = [];
+                json.pages.forEach((page, pageIndex) => {
+                    const img = new Image();
+                    promises.push(new Promise(resolve => {
+                        img.addEventListener('load', () => {
+                            resolve(img);
+                        }); 
+                    }));
+                    img.src = page;
+                    imagePages.set(pageIndex, img);
+                });
+                Promise.all(promises).then(() => {
+                    process(json);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+</body>
+</html>
