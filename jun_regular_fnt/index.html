@@ -79,6 +79,30 @@
                 }
             }
         }
+        function renderChar(parent, previousCode, code) {
+            const amount = kernings.get(`${previousCode}:${code}`) || 0;
+            const meta = characters.get(code);
+            const ele = document.createElement('canvas');
+            const ctx = ele.getContext('2d', { willReadFrequently: true });
+            ele.width = meta.width;
+            ele.height = meta.height;
+            ele.style.width = `${meta.width}px`;
+            ele.style.height = `${meta.height}px`;
+            ctx.clearRect(0, 0, meta.width, meta.height);
+            ctx.drawImage(
+                imagePages.get(meta.page),
+                meta.x, meta.y, meta.width, meta.height,
+                0, 0, meta.width, meta.height
+            );
+            whiteToTransparent(ctx, meta.width, meta.height);
+            // Default spacing
+            let spaceHorizontal = info.get('spacing')[0];
+            spaceHorizontal += amount;
+            let spaceVertical = info.get('spacing')[1];
+            ele.style.marginLeft = `${spaceHorizontal}px`;
+            ele.title = `kerning: ${spaceHorizontal}`;
+            parent.appendChild(ele);
+        }
         function updateText(preview, text) {
             // Clear preview
             while(preview.firstChild){
@@ -88,28 +112,7 @@
             let previousCode = null;
             text.split('').forEach(char => {
                 const code = char.charCodeAt(0);
-                const amount = kernings.get(`${previousCode}:${code}`) || 0;
-                const meta = characters.get(code);
-                const ele = document.createElement('canvas');
-                const ctx = ele.getContext('2d', { willReadFrequently: true });
-                ele.width = meta.width;
-                ele.height = meta.height;
-                ele.style.width = `${meta.width}px`;
-                ele.style.height = `${meta.height}px`;
-                ctx.clearRect(0, 0, meta.width, meta.height);
-                ctx.drawImage(
-                    imagePages.get(meta.page),
-                    meta.x, meta.y, meta.width, meta.height,
-                    0, 0, meta.width, meta.height
-                );
-                whiteToTransparent(ctx, meta.width, meta.height);
-                // Default spacing
-                let spaceHorizontal = info.get('spacing')[0];
-                spaceHorizontal += amount;
-                let spaceVertical = info.get('spacing')[1];
-                ele.style.marginLeft = `${spaceHorizontal}px`;
-                ele.title = `kerning: ${spaceHorizontal}`;
-                preview.appendChild(ele);
+                renderChar(preview, previousCode, code);
                 previousCode = code;
             });
         }
@@ -153,11 +156,38 @@
             const table = document.createElement('table');
             const thTr = document.createElement('tr');
             const th1 = document.createElement('th');
+            th1.textContent = 'First';
+            const th2 = document.createElement('th');
+            th2.textContent = 'Second';
+            const th3 = document.createElement('th');
+            th3.textContent = 'Amount';
+            const th4 = document.createElement('th');
+            th4.textContent = 'Preview';
+            thTr.appendChild(th1);
+            thTr.appendChild(th2);
+            thTr.appendChild(th3);
+            thTr.appendChild(th4);
             table.appendChild(thTr);
             document.body.appendChild(table);
             data.kernings.forEach((kern, pageIndex) => {
                 const { first, second, amount } = kern;
                 kernings.set(`${first}:${second}`, amount);
+                // Add to Chart
+                const tdTr = document.createElement('tr');
+                const td1 = document.createElement('td');
+                td1.textContent = String.fromCharCode(first);
+                const td2 = document.createElement('td');
+                td2.textContent = String.fromCharCode(second);
+                const td3 = document.createElement('td');
+                td3.textContent = amount;
+                const td4 = document.createElement('td');
+                renderChar(td4, null, first);
+                renderChar(td4, first, second);
+                tdTr.appendChild(td1);
+                tdTr.appendChild(td2);
+                tdTr.appendChild(td3);
+                tdTr.appendChild(td4);
+                table.appendChild(tdTr);
             });
         }
         window.addEventListener('load', () => {
