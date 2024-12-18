@@ -6,10 +6,18 @@
     <title>Preview</title>
     <style>
         body {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto;
+            grid-gap: 0.5rem 2rem;
             margin: 1rem;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         div.page {
+            grid-column: 1;
+            grid-row: 1;
+            align-items: flex-start;
+            justify-content: flex-start;
             display: inline-flex;
             position: relative;
             background: #FFF;
@@ -24,27 +32,42 @@
             box-sizing: border-box;
         }
         div.preview {
+            grid-column: 1;
+            grid-row: 4;
             display: flex;
             background: #FFF;
             box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
         }
-        div.preview > canvas {
+        canvas {
             image-rendering: pixelated;
         }
         div.preview > canvas:first-child {
             margin-left: 0 !important;
         }
         p {
+            grid-column: 1;
+            grid-row: 2;
             color: #666;
             margin: 0 0.5rem 1rem 0.5rem;
         }
         textarea {
+            grid-column: 1;
+            grid-row: 3;
             border: 1px solid #111;
             border-radius: 0.25rem;
             resize: none;
             width: 20rem;
             height: 3rem;
             padding: 0.5rem;
+        }
+        table {
+            grid-column: 2;
+            grid-row: 1 / 6;
+            border-spacing: 0;
+        }
+        table th {
+            padding-right: 0.5rem;
+            font-size: 0.875rem;
         }
     </style>
     <script>
@@ -67,6 +90,7 @@
                 parentEle.appendChild(box);
                 characters.set(char.id, char);
             });
+            console.log(`Parsed ${chars.length} characters`);
         }
         function whiteToTransparent(ctx, width, height) {
             for (let x = 0; x < width; x++) {
@@ -120,6 +144,7 @@
             Object.keys(data.info).forEach(key => {
                 info.set(key, data.info[key]);
             });
+            console.log(`Parsed info`);
             data.pages.forEach((page, pageIndex) => {
                 pages.set(pageIndex, page);
                 const parentEle = document.createElement('div');
@@ -189,6 +214,7 @@
                 tdTr.appendChild(td4);
                 table.appendChild(tdTr);
             });
+            console.log(`Parsed ${data.kernings.length} kerning pairs`);
         }
         window.addEventListener('load', () => {
             const file = 'jun_regular.json';
@@ -206,10 +232,12 @@
                             resolve(img);
                         }); 
                     }));
+                    console.log(`Loading '${page}'...`);
                     img.src = page;
                     imagePages.set(pageIndex, img);
                 });
                 Promise.all(promises).then(() => {
+                    console.log(`Begin processing...`);
                     process(json);
                 });
             });
