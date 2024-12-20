@@ -41,6 +41,9 @@
         canvas {
             image-rendering: pixelated;
         }
+        canvas.hover {
+            background: #c6ebff;
+        }
         div.preview > canvas:first-child {
             margin-left: 0 !important;
         }
@@ -68,6 +71,16 @@
         table th {
             padding-right: 0.5rem;
             font-size: 0.875rem;
+        }
+        table tr:nth-child(odd) {
+            background-color: #EEE;
+        }
+        table tr:nth-child(1) {
+            background-color: #FFF;
+        }
+        table tr:nth-child(1) th {
+            border-bottom: 1px solid #DDD;
+            text-align: left;
         }
     </style>
     <script>
@@ -124,7 +137,13 @@
             spaceHorizontal += amount;
             let spaceVertical = info.get('spacing')[1];
             ele.style.marginLeft = `${spaceHorizontal}px`;
-            ele.title = `kerning: ${spaceHorizontal}`;
+            ele.title = `kerning: ${spaceHorizontal}; ${code} (${previousCode})`;
+            ele.addEventListener('mouseenter', () => {
+                ele.classList.add('hover');
+            });
+            ele.addEventListener('mouseleave', () => {
+                ele.classList.remove('hover');
+            });
             parent.appendChild(ele);
         }
         function updateText(preview, text) {
