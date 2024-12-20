@@ -86,6 +86,35 @@
             border-bottom: 1px solid #DDD;
             text-align: left;
         }
+        .toast {
+            position: absolute;
+            padding: 0.75rem 1rem;
+            background: #EEE;
+            top: 1rem;
+            right: 1rem;
+            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.25);
+            border-radius: 0.5rem;
+        }
+        .toast-info {
+            color: #fff;
+            font-weight: 500;
+            background-color: #2196f3;
+        }
+        .toast-warning {
+            color: #fff;
+            font-weight: 500;
+            background-color: #ff9800;
+        }
+        .toast-error {
+            color: #fff;
+            font-weight: 500;
+            background-color: #f44336;
+        }
+        .toast-success {
+            color: #fff;
+            font-weight: 500;
+            background-color: #4caf50;
+        }
     </style>
     <script>
         /**
@@ -120,6 +149,22 @@
                 }
             }
         }
+        const ToastTheme = {
+            info: 'info',
+            warning: 'warning',
+            error: 'error',
+            success: 'success'
+        }
+        function toast(message, theme) {
+            const toast = document.createElement('div');
+            toast.classList.add('toast');
+            toast.classList.add(`toast-${theme || ToastTheme.info}`);
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
         function renderChar(parent, previousCode, code) {
             const exists = kernings.has(`${previousCode}:${code}`);
             const amount = kernings.get(`${previousCode}:${code}`) || 0;
@@ -150,7 +195,13 @@
                 ele.classList.remove(exists ? 'hover-exists' : 'hover');
             });
             ele.addEventListener('click', () => {
-                copyToClipboard(`,\n        {\n            "first": ${previousCode},\n            "second": ${code},\n            "amount": -1\n        }`);
+                if (exists) {
+                    toast('Kerning pair exists aleady!', ToastTheme.warning);
+                } else if (previousCode === null) {
+                    toast('Previous char required for kerning.', ToastTheme.warning);
+                } else {
+                    copyToClipboard(`,\n        {\n            "first": ${previousCode},\n            "second": ${code},\n            "amount": -1\n        }`);
+                }
             });
             parent.appendChild(ele);
         }
@@ -261,6 +312,7 @@
             navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
                 if (result.state === "granted" || result.state === "prompt") {
                     navigator.clipboard.writeText(text).then(() => {
+                        toast('Copied to clipboard!', ToastTheme.success);
                         console.log('Successfully wrote to clipboard');
                     }, () => {
                         console.error('Failed to write to clipboard');
