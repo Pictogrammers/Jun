@@ -1408,9 +1408,69 @@
             "amount": -2
         },
         {
+            "first": 45,
+            "second": 89,
+            "amount": -2
+        },
+        {
             "first": 87,
             "second": 101,
-            "amount": -2
+            "amount": -1
+        },
+        {
+            "first": 84,
+            "second": 114,
+            "amount": -1
+        },
+        {
+            "first": 114,
+            "second": 44,
+            "amount": -1
+        },
+        {
+            "first": 65,
+            "second": 34,
+            "amount": -1
+        },
+        {
+            "first": 34,
+            "second": 65,
+            "amount": -1
+        },
+        {
+            "first": 86,
+            "second": 117,
+            "amount": -1
+        },
+        {
+            "first": 86,
+            "second": 45,
+            "amount": -1
+        },
+        {
+            "first": 45,
+            "second": 86,
+            "amount": -1
+        },
+        {
+            "first": 87,
+            "second": 45,
+            "amount": -1
+        },
+        {
+            "first": 45,
+            "second": 87,
+            "amount": -1
+        },
+        {
+            "first": 88,
+            "second": 45,
+            "amount": -1
+        },
+        {
+            "first": 45,
+            "second": 88,
+            "amount": -1
         }
     ],
     "info": {
@@ -1437,7 +1497,7 @@
     },
     "common": {
         "lineHeight": 22,
-        "base": 26,
+        "base": 18,
         "scaleW": 256,
         "scaleH": 256,
         "pages": 1,

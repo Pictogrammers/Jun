@@ -44,6 +44,9 @@
         canvas.hover {
             background: #c6ebff;
         }
+        canvas.hover-exists {
+            background: #8de558;;
+        }
         div.preview > canvas:first-child {
             margin-left: 0 !important;
         }
@@ -67,6 +70,7 @@
             grid-column: 2;
             grid-row: 1 / 6;
             border-spacing: 0;
+            max-width: 15rem;
         }
         table th {
             padding-right: 0.5rem;
@@ -117,6 +121,7 @@
             }
         }
         function renderChar(parent, previousCode, code) {
+            const exists = kernings.has(`${previousCode}:${code}`);
             const amount = kernings.get(`${previousCode}:${code}`) || 0;
             const meta = characters.get(code);
             const ele = document.createElement('canvas');
@@ -139,10 +144,13 @@
             ele.style.marginLeft = `${spaceHorizontal}px`;
             ele.title = `kerning: ${spaceHorizontal}; ${code} (${previousCode})`;
             ele.addEventListener('mouseenter', () => {
-                ele.classList.add('hover');
+                ele.classList.add(exists ? 'hover-exists' : 'hover');
             });
             ele.addEventListener('mouseleave', () => {
-                ele.classList.remove('hover');
+                ele.classList.remove(exists ? 'hover-exists' : 'hover');
+            });
+            ele.addEventListener('click', () => {
+                copyToClipboard(`,\n        {\n            "first": ${previousCode},\n            "second": ${code},\n            "amount": -1\n        }`);
             });
             parent.appendChild(ele);
         }
@@ -158,6 +166,19 @@
                 renderChar(preview, previousCode, code);
                 previousCode = code;
             });
+        }
+        function validate() {
+            const errors = [];
+            // No duplicates
+            
+            // Output
+            if (errors.length) {
+                errors.forEach(error => {
+                    console.log(error);
+                });
+                return;
+            }
+            console.log('Completed, no errors.')
         }
         function process(data) {
             Object.keys(data.info).forEach(key => {
@@ -234,6 +255,18 @@
                 table.appendChild(tdTr);
             });
             console.log(`Parsed ${data.kernings.length} kerning pairs`);
+            validate(data);
+        }
+        function copyToClipboard(text) {
+            navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
+                if (result.state === "granted" || result.state === "prompt") {
+                    navigator.clipboard.writeText(text).then(() => {
+                        console.log('Successfully wrote to clipboard');
+                    }, () => {
+                        console.error('Failed to write to clipboard');
+                    });
+                }
+            });
         }
         window.addEventListener('load', () => {
             const file = 'jun_regular.json';

@@ -5,6 +5,7 @@
   "description": "Jun Regular Font",
   "main": "build.js",
   "scripts": {
+    "start": "http-server",
     "build": "node build.js"
   },
   "author": "",
