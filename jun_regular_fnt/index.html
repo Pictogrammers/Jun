@@ -183,8 +183,9 @@
             background-color: #4caf50;
         }
         /**
-         * Info
+         * Info / Common
          */
+        ul.common,
         ul.info {
             display: flex;
             gap: 0.125rem;
@@ -227,10 +228,9 @@
             item.appendChild(button);
             pagesElement.appendChild(item);
         }
-        function addInfo(indent, label, value, title) {
+        function addInfo(label, value, title) {
             const row = document.createElement('li');
             row.classList.add('row');
-            row.classList.add(`indent-${indent}`);
             const labelEle = document.createElement('div');
             labelEle.textContent = label;
             labelEle.title = title;
@@ -265,36 +265,55 @@
         };
         function updateInfo(data) {
             const infoElement = document.getElementById('info');
-            const nameEle = addInfo(0, 'face', data.info.face, infoDictionary.face);
+            const nameEle = addInfo('face', data.info.face, infoDictionary.face);
             infoElement.appendChild(nameEle);
-            const sizeEle = addInfo(0, 'size', data.info.size, infoDictionary.size);
+            const sizeEle = addInfo('size', data.info.size, infoDictionary.size);
             infoElement.appendChild(sizeEle);
-            const italicEle = addInfo(0, 'italic', data.info.italic, infoDictionary.italic);
+            const italicEle = addInfo('italic', data.info.italic, infoDictionary.italic);
             infoElement.appendChild(italicEle);
-            const boldEle = addInfo(0, 'bold', data.info.bold, infoDictionary.bold);
+            const boldEle = addInfo('bold', data.info.bold, infoDictionary.bold);
             infoElement.appendChild(boldEle);
-            const paddingEle = addInfo(0, 'padding', [
+            const paddingEle = addInfo('padding', [
                 { label: 'Top', value: data.info.padding[0] },
                 { label: 'Right', value: data.info.padding[1] },
                 { label: 'Bottom', value: data.info.padding[2] },
                 { label: 'Left', value: data.info.padding[3] }
             ], infoDictionary.padding);
             infoElement.appendChild(paddingEle);
-            const spacingEle = addInfo(0, 'spacing', [
+            const spacingEle = addInfo('spacing', [
                 { label: 'Horizontal', value: data.info.spacing[0] },
                 { label: 'Vertical', value: data.info.spacing[1] }
             ], infoDictionary.spacing);
             infoElement.appendChild(spacingEle);
-            const stretchHEle = addInfo(0, 'stretchH', data.info.stretchH, infoDictionary.stretchH);
+            const stretchHEle = addInfo('stretchH', data.info.stretchH, infoDictionary.stretchH);
             infoElement.appendChild(stretchHEle);
-            const unicodeEle = addInfo(0, 'unicode', data.info.unicode, infoDictionary.unicode);
+            const unicodeEle = addInfo('unicode', data.info.unicode, infoDictionary.unicode);
             infoElement.appendChild(unicodeEle);
-            const smoothEle = addInfo(0, 'smooth', data.info.smooth, infoDictionary.smooth);
+            const smoothEle = addInfo('smooth', data.info.smooth, infoDictionary.smooth);
             infoElement.appendChild(smoothEle);
-            const aaEle = addInfo(0, 'aa', data.info.aa, infoDictionary.aa);
+            const aaEle = addInfo('aa', data.info.aa, infoDictionary.aa);
             infoElement.appendChild(aaEle);
-            const outlineEle = addInfo(0, 'outline', data.info.outline, infoDictionary.outline);
+            const outlineEle = addInfo('outline', data.info.outline, infoDictionary.outline);
             infoElement.appendChild(outlineEle);
+        }
+        const commonDictionary = {
+            lineHeight: 'This is the distance in pixels between each line of text.',
+            base: 'The number of pixels from the absolute top of the line to the base of the characters.',
+            scaleW: 'The width of the texture, normally used to scale the x pos of the character image.',
+            scaleH: 'The height of the texture, normally used to scale the y pos of the character image.',
+            pages: 'The number of texture pages included in the font.',
+            packed: 'Set to 1 if the monochrome characters have been packed into each of the texture channels. In this case alphaChnl describes what is stored in each channel.',
+            alphaChnl: 'Set to 0 if the channel holds the glyph data, 1 if it holds the outline, 2 if it holds the glyph and the outline, 3 if its set to zero, and 4 if its set to one.',
+            redChnl: 'Set to 0 if the channel holds the glyph data, 1 if it holds the outline, 2 if it holds the glyph and the outline, 3 if its set to zero, and 4 if its set to one.',
+            greenChnl: 'Set to 0 if the channel holds the glyph data, 1 if it holds the outline, 2 if it holds the glyph and the outline, 3 if its set to zero, and 4 if its set to one.',
+            blueChnl: 'Set to 0 if the channel holds the glyph data, 1 if it holds the outline, 2 if it holds the glyph and the outline, 3 if its set to zero, and 4 if its set to one.'
+        };
+        function updateCommon(data) {
+            const commonElement = document.getElementById('common');
+            Object.keys(commonDictionary).forEach(key => {
+                const ele = addInfo(key, data.common[key], infoDictionary[key]);
+                commonElement.appendChild(ele);
+            });
         }
         function drawCharacters(parentEle, chars) {
             chars.forEach(char => {
@@ -408,6 +427,8 @@
             });
             updateInfo(data);
             console.log(`Parsed info`);
+            updateCommon(data);
+            console.log(`Parsed common`);
             data.pages.forEach((page, pageIndex) => {
                 pages.set(pageIndex, page);
                 addPage(page);
