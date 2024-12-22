@@ -311,9 +311,14 @@
         function updateCommon(data) {
             const commonElement = document.getElementById('common');
             Object.keys(commonDictionary).forEach(key => {
-                const ele = addInfo(key, data.common[key], infoDictionary[key]);
+                const ele = addInfo(key, data.common[key], commonDictionary[key]);
                 commonElement.appendChild(ele);
             });
+        }
+        function updateKernings(data) {
+            const kerningsElement = document.getElementById('kernings');
+            const ele = addInfo('Total Pairs', data.kernings.length, 'Total kerning pairs across all pages.');
+            kerningsElement.appendChild(ele);
         }
         function drawCharacters(parentEle, chars) {
             chars.forEach(char => {
@@ -428,6 +433,7 @@
             updateInfo(data);
             console.log(`Parsed info`);
             updateCommon(data);
+            updateKernings(data);
             console.log(`Parsed common`);
             data.pages.forEach((page, pageIndex) => {
                 pages.set(pageIndex, page);
