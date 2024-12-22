@@ -5,12 +5,13 @@
   "description": "Jun Regular Font",
   "main": "build.js",
   "scripts": {
-    "start": "http-server",
+    "start": "http-server -c-1",
     "build": "node build.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "write-bmfont-binary": "^1.0.3"
+    "write-bmfont-binary": "^1.0.3",
+    "http-server": "^14.1.1"
   }
 }

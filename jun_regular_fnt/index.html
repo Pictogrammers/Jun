@@ -12,20 +12,106 @@
         body {
             display: grid;
             grid-template-columns: auto 1fr;
-            grid-template-rows: auto;
+            grid-template-rows: auto 1fr;
             background: #262626;
             margin: 0;
             font-family: var(--app-font);
             height: 100vh;
         }
-        div.tree {
-            display: grid;
+        div.header {
             grid-column: 1;
             grid-row: 1;
             background: #3D3D3D;
+            padding: 0.25rem 0.5rem;
+            position: relative;
+        }
+        div.header::after {
+            content: ' ';
+            display: block;
+            position: absolute;
+            background: #495958;
+            border-left: 0.125rem solid #2B2B2B;
+            border-top: 0.125rem solid #2B2B2B;
+            right: 0;
+            bottom: 0;
+            width: 0.25rem;
+            height: 0.25rem;
+        }
+        div.header h1 {
+            margin: 0;
+            font-weight: normal;
+            color: #FFF;
+            font-size: 0.875rem;
+        }
+        div.header h1 span {
+            font-weight: bold;
+            text-shadow: 0 0 0.25rem black;
+            margin-right: 0.25rem;
+            font-size: 1.25rem;
+        }
+        div.links {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto;
+            grid-column: 2;
+            grid-row: 1;
+            background: #3D3D3D;
+            padding: 0.25rem 1rem 0.25rem 0.5rem;
+            position: relative;
+        }
+        div.links::after {
+            content: ' ';
+            display: block;
+            position: absolute;
+            background: #495958;
+            border-top: 0.125rem solid #2B2B2B;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            height: 0.25rem;
+        }
+        div.links a {
+            color: #FFF;
+        }
+        div.links div:first-child {
+            grid-column: 1;
+            grid-row: 1;
+            background: #495958;
+            align-self: end;
+            z-index: 1;
+            padding: 0.125rem 0.5rem;
+            border-top: 0.125rem solid #2B2B2B;
+            border-radius: 0.25rem 0.25rem 0 0;
+            border-left: 0.125rem solid #2B2B2B;
+            border-right: 0.125rem solid #2B2B2B;
+            color: var(--app-color);
+        }
+        div.links div:last-child {
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            justify-content: end;
+        }
+        div.tree {
+            display: grid;
+            grid-column: 1;
+            grid-row: 2;
+            background: #3D3D3D;
             color: #DFDFDF;
-            padding: 0.5rem;
+            padding: 0.5rem 0.875rem 0.5rem 0.5rem;
             width: 12rem;
+            position: relative;
+        }
+        div.tree::after {
+            content: ' ';
+            display: block;
+            position: absolute;
+            background: #495958;
+            border-left: 0.125rem solid #2B2B2B;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 0.25rem;
         }
         div.tree > ul {
             margin: 0;
@@ -59,17 +145,33 @@
         div.tree > ul > li ul > li > button:hover {
             background: #495958;
         }
-        div.tree > ul > li ul > li > button.selected {
+        div.tree > ul > li ul > li.selected {
+            position: relative;
+        }
+        div.tree > ul > li ul > li.selected > button {
             background: #495958;
         }
-        li.version {
+        div.tree > ul > li ul > li.selected::after {
+            content: ' ';
+            width: 0.75rem;
+            height: 0.25rem;
+            top: calc(50% - 0.25rem);
+            right: -0.75rem;
+            display: block;
+            position: absolute;
+            background: #495958;
+            border-bottom: 0.125rem solid #2B2B2B;
+            border-top: 0.125rem solid #2B2B2B;
+            z-index: 1;
+        }
+        li.appInfo {
             align-content: end;
             text-align: center;
             color: #AAA;
         }
         div.main {
             grid-column: 2;
-            grid-row: 1;
+            grid-row: 2;
             display: grid;
             grid-template-columns: auto 1fr;
             grid-template-rows: auto;
@@ -101,7 +203,7 @@
         }
         div.preview {
             grid-column: 1;
-            grid-row: 4;
+            grid-row: 3;
             display: flex;
             background: #FFF;
             box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
@@ -118,15 +220,21 @@
         div.preview > canvas:first-child {
             margin-left: 0 !important;
         }
-        p {
+        div.doc p {
             grid-column: 1;
-            grid-row: 2;
-            color: #666;
-            margin: 0 0.5rem 1rem 0.5rem;
+            grid-row: 4;
+            color: #111;
+            margin: 0 0 0 -1rem;
+            padding: 0.5rem 0.5rem 0.5rem 1rem;
+            background: #EEE;
+            border-top: 1px solid #DDD;
+            border-right: 1px solid #DDD;
+            border-bottom: 1px solid #DDD;
+            border-radius: 0 0.25rem 0.25rem 0;
         }
         textarea {
             grid-column: 1;
-            grid-row: 3;
+            grid-row: 2;
             border: 1px solid #111;
             border-radius: 0.25rem;
             resize: none;
@@ -231,6 +339,13 @@
             button.textContent = name;
             item.appendChild(button);
             pagesElement.appendChild(item);
+        }
+        function selectPage(name) {
+            const pagesElement = document.getElementById('pages');
+            const items = [...pagesElement.querySelectorAll('li')];
+            items.forEach(item => {
+                item.classList.toggle('selected', item.textContent === name);
+            })
         }
         function addInfo(label, value, title) {
             const row = document.createElement('li');
@@ -442,6 +557,9 @@
             data.pages.forEach((page, pageIndex) => {
                 pages.set(pageIndex, page);
                 addPage(page);
+                if (pageIndex === 0) {
+                    selectPage(page);
+                }
                 const parentEle = document.createElement('div');
                 parentEle.classList.add('page');
                 const img = document.createElement('img');
@@ -459,18 +577,22 @@
                 const preview = document.createElement('div');
                 preview.classList.add('preview');
                 const textarea = document.createElement('textarea');
+                textarea.placeholder = 'Preview';
                 textarea.addEventListener('input', (e) => {
                     const { value } = e.target;
                     updateText(preview, value);
                 });
-                // Hover Info
-                const hoverInfo = document.createElement('p');
-                hoverInfo.appendChild(document.createTextNode('Hover to see char id, click to copy kerning'));
-                document.querySelector('.main').appendChild(hoverInfo);
                 // Textarea
                 document.querySelector('.main').appendChild(textarea);
                 // Preview
                 document.querySelector('.main').appendChild(preview);
+                // Documentation
+                const docs = document.createElement('div');
+                docs.classList.add('doc');
+                const hoverInfo = document.createElement('p');
+                hoverInfo.appendChild(document.createTextNode('Update the json file and refresh to see changes.'));
+                docs.appendChild(hoverInfo);
+                document.querySelector('.main').appendChild(docs);
             });
             // Render Kerning Info
             const table = document.createElement('table');
@@ -527,8 +649,10 @@
         window.addEventListener('load', () => {
             const file = 'jun_regular.json';
             console.log(`Loading '${file}'...`);
+            document.getElementById('file').textContent = file;
             fetch(file, {
-                method: 'GET'
+                method: 'GET',
+                cache: "no-store"
             }).then(async (response) => {
                 const json = await response.json();
                 // We need all the image data also cached...
@@ -553,6 +677,15 @@
     </script>
 </head>
 <body>
+    <div class="header">
+        <h1><span>BM</span> Bitmap Font Preview</h1>
+    </div>
+    <div class="links">
+        <div id="file">Loading...</div>
+        <div>
+            <a href="https://github.com/Templarian/">View Source</a>
+        </div>
+    </div>
     <div class="tree">
         <ul>
             <li>
@@ -571,7 +704,7 @@
                 <div>Kerning Pairs</div>
                 <ul id="kernings" class="kernings"></ul>
             </li>
-            <li class="version">
+            <li class="appInfo">
                 Version 1.0
             </li>
         </ul>
