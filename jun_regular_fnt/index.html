@@ -5,13 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview</title>
     <style>
+        :root {
+            --app-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --app-color: #E0E0E0;
+        }
         body {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto;
+            background: #262626;
+            margin: 0;
+            font-family: var(--app-font);
+        }
+        div.tree {
+            display: grid;
+            grid-column: 1;
+            grid-row: 1;
+            background: #3D3D3D;
+            color: #DFDFDF;
+            padding: 0.5rem;
+            width: 12rem;
+        }
+        div.tree > ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            grid-template-columns: auto;
+            grid-template-rows: auto auto auto auto 1fr;
+        }
+        div.tree > ul > li > div {
+            padding: 0 0.5rem;
+        }
+        div.tree > ul > li ul {
+            background: #2B2B2B;
+            border-radius: 0.25rem;
+            padding: 0.125rem;
+            margin: 0.25rem 0;
+            font-size: 0.875rem;
+            list-style: none;
+        }
+        div.tree > ul > li ul > li > button {
+            width: 100%;
+            padding: 0.25rem 0.5rem;
+            border: 0;
+            background: transparent;
+            font: var(--app-font);
+            color: var(--app-color);
+            border-radius: 0.125rem;
+            text-align: left;
+        }
+        div.tree > ul > li ul > li > button:hover {
+            background: #495958;
+        }
+        div.tree > ul > li ul > li > button.selected {
+            background: #495958;
+        }
+        li.version {
+            align-content: end;
+        }
+        div.main {
+            grid-column: 2;
+            grid-row: 1;
             display: grid;
             grid-template-columns: auto 1fr;
             grid-template-rows: auto;
             grid-gap: 0.5rem 2rem;
             margin: 1rem;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: auto;
         }
         div.page {
             grid-column: 1;
@@ -30,6 +91,9 @@
             position: absolute;
             background: rgba(255, 0, 0, 0.3);
             box-sizing: border-box;
+        }
+        div.page > div:hover {
+            background: rgba(33, 150, 243, 0.3);
         }
         div.preview {
             grid-column: 1;
@@ -86,6 +150,9 @@
             border-bottom: 1px solid #DDD;
             text-align: left;
         }
+        /**
+         * Toast
+         */
         .toast {
             position: absolute;
             padding: 0.75rem 1rem;
@@ -115,16 +182,120 @@
             font-weight: 500;
             background-color: #4caf50;
         }
+        /**
+         * Info
+         */
+        ul.info {
+            display: flex;
+            gap: 0.125rem;
+            flex-direction: column;
+        }
+        li.row {
+            display: flex;
+            flex-direction: row;
+            gap: 0.125rem;
+        }
+        li.row div {
+            padding: 0.125rem 0.5rem;
+            background: #3D3D3D;
+        }
+        li.row div:first-child {
+            background: rgba(61, 61, 61, 0.5);
+            border-top-left-radius: 0.125rem;
+            border-bottom-left-radius: 0.125rem;
+            color: #BBB;
+        }
+        li.row div:last-child {
+            border-top-right-radius: 0.125rem;
+            border-bottom-right-radius: 0.125rem;
+            padding: 0.125rem 0.5rem;
+        }
     </style>
     <script>
-        /**
-         * Super ugly code, but good enough for testing.
-         */
+        // Cache Configs
         const characters = new Map();
         const pages = new Map();
         const imagePages = new Map();
         const info = new Map();
         const kernings = new Map();
+        // Utilities
+        function addPage(name) {
+            const pagesElement = document.getElementById('pages');
+            const item = document.createElement('li');
+            const button = document.createElement('button');
+            button.textContent = name;
+            item.appendChild(button);
+            pagesElement.appendChild(item);
+        }
+        function addInfo(indent, label, value, title) {
+            const row = document.createElement('li');
+            row.classList.add('row');
+            row.classList.add(`indent-${indent}`);
+            const labelEle = document.createElement('div');
+            labelEle.textContent = label;
+            labelEle.title = title;
+            row.appendChild(labelEle);
+            if (value instanceof Array) {
+                value.forEach(item => {
+                    const valueEle = document.createElement('div');
+                    valueEle.textContent = item.value;
+                    valueEle.title = item.label;
+                    row.appendChild(valueEle);
+                });
+            } else {
+                const valueEle = document.createElement('div');
+                valueEle.textContent = value;
+                row.appendChild(valueEle);
+            }
+            return row;
+        }
+        const infoDictionary = {
+            face: 'This is the name of the true type font.',
+            size: 'The size of the true type font.',
+            bold: 'The font is bold.',
+            italic: 'The font is italic.',
+            charset: 'The name of the OEM charset used (when not unicode).',
+            unicode: 'Set to 1 if it is the unicode charset.',
+            stretchH: 'The font height stretch in percentage. 100% means no stretch.',
+            smooth: 'Set to 1 if smoothing was turned on.',
+            aa: 'The supersampling level used. 1 means no supersampling was used.',
+            padding: 'The padding for each character (up, right, down, left).',
+            spacing: 'The spacing for each character (horizontal, vertical).',
+            outline: 'The outline thickness for the characters.'
+        };
+        function updateInfo(data) {
+            const infoElement = document.getElementById('info');
+            const nameEle = addInfo(0, 'face', data.info.face, infoDictionary.face);
+            infoElement.appendChild(nameEle);
+            const sizeEle = addInfo(0, 'size', data.info.size, infoDictionary.size);
+            infoElement.appendChild(sizeEle);
+            const italicEle = addInfo(0, 'italic', data.info.italic, infoDictionary.italic);
+            infoElement.appendChild(italicEle);
+            const boldEle = addInfo(0, 'bold', data.info.bold, infoDictionary.bold);
+            infoElement.appendChild(boldEle);
+            const paddingEle = addInfo(0, 'padding', [
+                { label: 'Top', value: data.info.padding[0] },
+                { label: 'Right', value: data.info.padding[1] },
+                { label: 'Bottom', value: data.info.padding[2] },
+                { label: 'Left', value: data.info.padding[3] }
+            ], infoDictionary.padding);
+            infoElement.appendChild(paddingEle);
+            const spacingEle = addInfo(0, 'spacing', [
+                { label: 'Horizontal', value: data.info.spacing[0] },
+                { label: 'Vertical', value: data.info.spacing[1] }
+            ], infoDictionary.spacing);
+            infoElement.appendChild(spacingEle);
+            const stretchHEle = addInfo(0, 'stretchH', data.info.stretchH, infoDictionary.stretchH);
+            infoElement.appendChild(stretchHEle);
+            const unicodeEle = addInfo(0, 'unicode', data.info.unicode, infoDictionary.unicode);
+            infoElement.appendChild(unicodeEle);
+            const smoothEle = addInfo(0, 'smooth', data.info.smooth, infoDictionary.smooth);
+            infoElement.appendChild(smoothEle);
+            const aaEle = addInfo(0, 'aa', data.info.aa, infoDictionary.aa);
+            infoElement.appendChild(aaEle);
+            const outlineEle = addInfo(0, 'outline', data.info.outline, infoDictionary.outline);
+            infoElement.appendChild(outlineEle);
+        }
         function drawCharacters(parentEle, chars) {
             chars.forEach(char => {
                 const box = document.createElement('div');
@@ -160,7 +331,7 @@
             toast.classList.add('toast');
             toast.classList.add(`toast-${theme || ToastTheme.info}`);
             toast.textContent = message;
-            document.body.appendChild(toast);
+            document.querySelector('.main').appendChild(toast);
             setTimeout(() => {
                 toast.remove();
             }, 3000);
@@ -235,9 +406,11 @@
             Object.keys(data.info).forEach(key => {
                 info.set(key, data.info[key]);
             });
+            updateInfo(data);
             console.log(`Parsed info`);
             data.pages.forEach((page, pageIndex) => {
                 pages.set(pageIndex, page);
+                addPage(page);
                 const parentEle = document.createElement('div');
                 parentEle.classList.add('page');
                 const img = document.createElement('img');
@@ -250,7 +423,7 @@
                     parentEle,
                     data.chars.filter(char => char.page === pageIndex)
                 );
-                document.body.appendChild(parentEle);
+                document.querySelector('.main').appendChild(parentEle);
                 // Kerning Testing
                 const preview = document.createElement('div');
                 preview.classList.add('preview');
@@ -261,12 +434,12 @@
                 });
                 // Hover Info
                 const hoverInfo = document.createElement('p');
-                hoverInfo.appendChild(document.createTextNode('Hover to see char id'));
-                document.body.appendChild(hoverInfo);
+                hoverInfo.appendChild(document.createTextNode('Hover to see char id, click to copy kerning'));
+                document.querySelector('.main').appendChild(hoverInfo);
                 // Textarea
-                document.body.appendChild(textarea);
+                document.querySelector('.main').appendChild(textarea);
                 // Preview
-                document.body.appendChild(preview);
+                document.querySelector('.main').appendChild(preview);
             });
             // Render Kerning Info
             const table = document.createElement('table');
@@ -284,7 +457,7 @@
             thTr.appendChild(th3);
             thTr.appendChild(th4);
             table.appendChild(thTr);
-            document.body.appendChild(table);
+            document.querySelector('.main').appendChild(table);
             data.kernings.forEach((kern, pageIndex) => {
                 const { first, second, amount } = kern;
                 kernings.set(`${first}:${second}`, amount);
@@ -349,5 +522,31 @@
     </script>
 </head>
 <body>
+    <div class="tree">
+        <ul>
+            <li>
+                <div>Pages</div>
+                <ul id="pages" class="pages"></ul>
+            </li>
+            <li>
+                <div>Font Info</div>
+                <ul id="info" class="info"></ul>
+            </li>
+            <li>
+                <div>Common</div>
+                <ul id="common" class="common"></ul>
+            </li>
+            <li>
+                <div>Kerning Pairs</div>
+                <ul id="kernings" class="kernings"></ul>
+            </li>
+            <li class="version">
+                Version 1.0
+            </li>
+        </ul>
+    </div>
+    <div class="main">
+        
+    </div>
 </body>
 </html>

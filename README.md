@@ -1,12 +1,12 @@
-# Jun Mono & Jun Sans
+# Jun Mono & Jun Sans Regular & Jun Sans Condensed
 
 https://pictogrammers.github.io/@pictogrammers/jun/
 
 - Jun Mono
   - 20pt Monospace Pixel Font
-- Jun Regular (Work in Progress)
+- Jun Sans Regular (Work in Progress)
   - 20pt Sans Serif Pixel Font
-- Jun Condensed (Work in Progress)
+- Jun Sans Condensed (Work in Progress)
   - 20pt Sans Serif Pixel Font
 
 ## Usage
@@ -42,7 +42,9 @@ html {
 
 ## Contribution
 
-Please create an issue if you run into issues with the font files or to request a missing character.
+Most contributions are related to kerning, so outlining the best way to let me know below...
+- Pull Request - Update the `.json` file with the new character pairs and amount.
+- Issue - Include the characters and which font has the issue.
 
 ## Development
 
