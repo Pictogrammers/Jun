@@ -572,6 +572,31 @@
                 toast.remove();
             }, 3000);
         }
+        function getCharKerning(previous, code) {
+            const spaceHorizontal = info.get('spacing')[0];
+            const exists = kernings.has(`${previousCode}:${code}`);
+            const amount = kernings.get(`${previousCode}:${code}`) || 0;
+            return spaceHorizontal + amount;
+        }
+        function getCharImage() {
+            const exists = kernings.has(`${previousCode}:${code}`);
+            const amount = kernings.get(`${previousCode}:${code}`) || 0;
+            const meta = characters.get(code);
+            const ele = document.createElement('canvas');
+            const ctx = ele.getContext('2d', { willReadFrequently: true });
+            ele.width = meta.width;
+            ele.height = meta.height;
+            ele.style.width = `${meta.width}px`;
+            ele.style.height = `${meta.height}px`;
+            ctx.clearRect(0, 0, meta.width, meta.height);
+            ctx.drawImage(
+                imagePages.get(meta.page),
+                meta.x, meta.y, meta.width, meta.height,
+                0, 0, meta.width, meta.height
+            );
+            whiteToTransparent(ctx, meta.width, meta.height);
+            return ele.getImageData(0, 0, meta.width, meta.height);
+        }
         function renderChar(parent, previousCode, code) {
             const exists = kernings.has(`${previousCode}:${code}`);
             const amount = kernings.get(`${previousCode}:${code}`) || 0;
@@ -721,6 +746,9 @@
             document.querySelector('.main').appendChild(scroll);
             data.kernings.forEach((kern, pageIndex) => {
                 const { first, second, amount } = kern;
+                if (kernings.has(`${first}:${second}`)) {
+                    throw new Error(`Duplicate kerning pair: ${first} ${second}`);
+                }
                 kernings.set(`${first}:${second}`, amount);
                 // Add to Chart
                 const tdTr = document.createElement('tr');
@@ -786,7 +814,8 @@
             });
         }
         const kerningCodes = [
-            34
+            84,
+            97
         ];
         function estimateKerningPairs() {
 
