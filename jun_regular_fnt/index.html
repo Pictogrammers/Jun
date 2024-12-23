@@ -211,9 +211,8 @@
             display: grid;
             grid-template-columns: auto 1fr;
             grid-template-rows: auto;
-            grid-gap: 0.5rem 2rem;
+            grid-gap: 0.5rem 1rem;
             overflow: auto;
-            padding: 1rem;
             background: #FFF;;
         }
         div.page {
@@ -226,6 +225,7 @@
             background: #FFF;
             border: 0.25rem solid rgba(73, 89, 88, 0.25);
             border-radius: 0.25rem;
+            margin: 1rem 0 0 1rem
         }
         div.page > img {
             image-rendering: pixelated;
@@ -246,6 +246,7 @@
             border: 0.25rem solid rgba(73, 89, 88, 0.25);
             border-radius: 0.25rem;
             flex-wrap: wrap;
+            margin-left: 1rem;
         }
         div.break {
             width: 100%;
@@ -274,6 +275,7 @@
             background: rgba(73, 89, 88, 0.05);
             border: 0.25rem solid rgba(73, 89, 88, 0.25);
             border-radius: 0.25rem 1.5rem 0.25rem 0.25rem;
+            margin-left: 1rem;
         }
         div.doc::before {
             content: ' ';
@@ -307,14 +309,19 @@
             resize: none;
             height: 3rem;
             padding: 0.5rem;
+            margin-left: 1rem;
         }
         textarea:focus {
             border: 0.25rem solid rgba(73, 89, 88, 1);
             outline: none;
         }
-        table {
+        div.kernings {
             grid-column: 2;
             grid-row: 1 / 6;
+            overflow: auto;
+            padding: 1rem 0;
+        }
+        table {
             border-spacing: 0;
             max-width: 15rem;
             border: 0.25rem solid rgba(73, 89, 88, 0.25);
@@ -690,6 +697,11 @@
                 selectPage(pages.get(0));
             }
             // Render Kerning Info
+            const scroll = document.createElement('div');
+            scroll.classList.add('kernings');
+            scroll.addEventListener('scroll', (e) => {
+                localStorage.setItem(`${file}:kernings`, e.target.scrollTop);
+            });
             const table = document.createElement('table');
             const thTr = document.createElement('tr');
             const th1 = document.createElement('th');
@@ -705,7 +717,8 @@
             thTr.appendChild(th3);
             thTr.appendChild(th4);
             table.appendChild(thTr);
-            document.querySelector('.main').appendChild(table);
+            scroll.appendChild(table);
+            document.querySelector('.main').appendChild(scroll);
             data.kernings.forEach((kern, pageIndex) => {
                 const { first, second, amount } = kern;
                 kernings.set(`${first}:${second}`, amount);
@@ -728,6 +741,10 @@
             });
             console.log(`Parsed ${data.kernings.length} kerning pairs`);
             validate(data);
+            const scrollPosition = localStorage.getItem(`${file}:kernings`);
+            if (scrollPosition) {
+                scroll.scrollTop = scrollPosition;
+            }
         }
         function updateDocs(docs) {
             const p = (message) => {
