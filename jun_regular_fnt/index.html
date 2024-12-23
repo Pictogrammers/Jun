@@ -245,6 +245,10 @@
             background: #FFF;
             border: 0.25rem solid rgba(73, 89, 88, 0.25);
             border-radius: 0.25rem;
+            flex-wrap: wrap;
+        }
+        div.break {
+            width: 100%;
         }
         canvas {
             image-rendering: pixelated;
@@ -609,6 +613,12 @@
             // Insert
             let previousCode = null;
             text.split('').forEach(char => {
+                if (char === '\n') {
+                    const br = document.createElement('div');
+                    br.classList.add('break');
+                    preview.appendChild(br);
+                    return;
+                }
                 const code = char.charCodeAt(0);
                 renderChar(preview, previousCode, code);
                 previousCode = code;
@@ -757,6 +767,12 @@
                     });
                 }
             });
+        }
+        const kerningCodes = [
+            34
+        ];
+        function estimateKerningPairs() {
+
         }
         window.addEventListener('load', () => {
             console.log(`Loading '${file}'...`);

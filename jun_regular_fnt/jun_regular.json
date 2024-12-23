@@ -1191,6 +1191,18 @@
             "xadvance": 0,
             "page": 1,
             "chnl": 15
+        },
+        {
+            "id": 163,
+            "x": 19,
+            "y": 0,
+            "width": 10,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
         }
     ],
     "kernings": [
