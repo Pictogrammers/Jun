@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview</title>
+    <title>Bitmap Font Preview</title>
     <style>
         :root {
             --app-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -144,6 +144,9 @@
             margin: 0.25rem 0;
             font-size: 0.875rem;
             list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
         }
         div.tree > ul > li ul > li > button {
             width: 100%;
@@ -235,6 +238,9 @@
         div.preview > canvas:first-child {
             margin-left: 0 !important;
         }
+        /**
+         * Documentation
+         */
         div.doc {
             grid-column: 1;
             grid-row: 4;
@@ -266,6 +272,9 @@
         div.doc p {
             margin: 0;
         }
+        div.doc ul {
+            margin: 0.5rem 0;
+        }
         textarea {
             grid-column: 1;
             grid-row: 2;
@@ -284,6 +293,8 @@
             grid-row: 1 / 6;
             border-spacing: 0;
             max-width: 15rem;
+            border: 0.25rem solid rgba(73, 89, 88, 0.25);
+            border-radius: 0.25rem;
         }
         table th {
             padding-right: 0.5rem;
@@ -298,6 +309,10 @@
         table tr:nth-child(1) th {
             border-bottom: 1px solid #DDD;
             text-align: left;
+        }
+        table tr th,
+        table tr td {
+            padding-left: 0.5rem;
         }
         /**
          * Toast
@@ -377,13 +392,18 @@
             button.textContent = name;
             item.appendChild(button);
             pagesElement.appendChild(item);
+            item.addEventListener('click', () => {
+                selectPage(name);
+            });
         }
         function selectPage(name) {
             const pagesElement = document.getElementById('pages');
             const items = [...pagesElement.querySelectorAll('li')];
-            items.forEach(item => {
+            const pageEles = [...document.querySelectorAll('.page')];
+            items.forEach((item, index) => {
                 item.classList.toggle('selected', item.textContent === name);
-            })
+                pageEles[index].style.order = item.textContent === name ? 2 : 1;
+            });
         }
         function addInfo(label, value, title) {
             const row = document.createElement('li');
@@ -595,9 +615,6 @@
             data.pages.forEach((page, pageIndex) => {
                 pages.set(pageIndex, page);
                 addPage(page);
-                if (pageIndex === 0) {
-                    selectPage(page);
-                }
                 const parentEle = document.createElement('div');
                 parentEle.classList.add('page');
                 const img = document.createElement('img');
@@ -627,17 +644,11 @@
                 // Documentation
                 const docs = document.createElement('div');
                 docs.classList.add('doc');
-                const hoverInfo = document.createElement('p');
-                hoverInfo.appendChild(document.createTextNode('Update the json file and refresh to see changes.'));
-                docs.appendChild(hoverInfo);
-                const featuresH2 = document.createElement('h2');
-                featuresH2.appendChild(document.createTextNode('Features'));
-                docs.appendChild(featuresH2);
-                const featuresP = document.createElement('p');
-                featuresP.appendChild(document.createTextNode('Validates json for common mistakes.'));
-                docs.appendChild(featuresP);
+                updateDocs(docs);
                 document.querySelector('.main').appendChild(docs);
             });
+            // Select initial page
+            selectPage(pages.get(0));
             // Render Kerning Info
             const table = document.createElement('table');
             const thTr = document.createElement('tr');
@@ -677,6 +688,33 @@
             });
             console.log(`Parsed ${data.kernings.length} kerning pairs`);
             validate(data);
+        }
+        function updateDocs(docs) {
+            const p = (message) => {
+                const ele = document.createElement('p');
+                ele.appendChild(document.createTextNode(message));
+                docs.appendChild(ele);
+            };
+            const list = (items) => {
+                const ele = document.createElement('ul');
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    ele.appendChild(li);
+                });
+                docs.appendChild(ele);
+            };
+            const h2 = (header) => {
+                const ele = document.createElement('h2');
+                ele.appendChild(document.createTextNode(header));
+                docs.appendChild(ele);
+            };
+            p('Update the json file and refresh to see changes.');
+            h2('Features');
+            list([
+                'Validates json for common mistakes.',
+                'Loops all common latin pairs for possible missing kerning pairs.'
+            ]);
         }
         function copyToClipboard(text) {
             navigator.permissions.query({ name: "clipboard-write" }).then((result) => {

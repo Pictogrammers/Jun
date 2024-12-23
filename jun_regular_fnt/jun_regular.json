@@ -1,6 +1,7 @@
 {
     "pages": [
-        "jun_regular_latin.bmp"
+        "jun_regular_latin.bmp",
+        "jun_regular_latin_1.bmp"
     ],
     "chars": [
         {
@@ -1154,6 +1155,42 @@
             "xadvance": 0,
             "page": 0,
             "chnl": 15
+        },
+        {
+            "id": 160,
+            "x": 0,
+            "y": 0,
+            "width": 5,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 161,
+            "x": 6,
+            "y": 0,
+            "width": 2,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 162,
+            "x": 9,
+            "y": 0,
+            "width": 9,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
         }
     ],
     "kernings": [
@@ -1505,7 +1542,7 @@
         "base": 18,
         "scaleW": 256,
         "scaleH": 256,
-        "pages": 1,
+        "pages": 2,
         "packed": 0,
         "alphaChnl": 1,
         "redChnl": 0,
