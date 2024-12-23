@@ -36,6 +36,7 @@
             bottom: 0;
             width: 0.25rem;
             height: 0.25rem;
+            border-top-left-radius: 0.25rem;
         }
         div.header h1 {
             margin: 0;
@@ -200,7 +201,8 @@
             display: inline-flex;
             position: relative;
             background: #FFF;
-            box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
+            border: 0.25rem solid rgba(73, 89, 88, 0.25);
+            border-radius: 0.25rem;
         }
         div.page > img {
             image-rendering: pixelated;
@@ -218,7 +220,8 @@
             grid-row: 3;
             display: flex;
             background: #FFF;
-            box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
+            border: 0.25rem solid rgba(73, 89, 88, 0.25);
+            border-radius: 0.25rem;
         }
         canvas {
             image-rendering: pixelated;
@@ -232,27 +235,49 @@
         div.preview > canvas:first-child {
             margin-left: 0 !important;
         }
-        div.doc p {
+        div.doc {
             grid-column: 1;
             grid-row: 4;
-            color: #111;
-            margin: 0 0 0 -1rem;
-            padding: 0.5rem 0.5rem 0.5rem 1rem;
-            background: #EEE;
-            border-top: 1px solid #DDD;
-            border-right: 1px solid #DDD;
-            border-bottom: 1px solid #DDD;
-            border-radius: 0 0.25rem 0.25rem 0;
+            position: relative;
+            color: #333;
+            padding: 0.5rem;
+            background: rgba(73, 89, 88, 0.05);
+            border: 0.25rem solid rgba(73, 89, 88, 0.25);
+            border-radius: 0.25rem 1.5rem 0.25rem 0.25rem;
+        }
+        div.doc::before {
+            content: ' ';
+            position: absolute;
+            width: 1.25rem;
+            height: 1.25rem;
+            top: 0;
+            right: 0;
+            border-bottom: 0.25rem solid rgba(73, 89, 88, 0.25);
+            border-left: 0.25rem solid rgba(73, 89, 88, 0.25);
+            border-bottom-left-radius: 1rem;
+            background: rgba(73, 89, 88, 0.1);
+            background-clip: content-box;
+            border-top-right-radius: 1.25rem;
+        }
+        div.doc h2 {
+            margin: 0.5rem 0 0.25rem 0;
+            font-size: 1.125rem;
+        }
+        div.doc p {
+            margin: 0;
         }
         textarea {
             grid-column: 1;
             grid-row: 2;
-            border: 1px solid #111;
+            border: 0.25rem solid rgba(73, 89, 88, 0.5);
             border-radius: 0.25rem;
             resize: none;
-            width: 20rem;
             height: 3rem;
             padding: 0.5rem;
+        }
+        textarea:focus {
+            border: 0.25rem solid rgba(73, 89, 88, 1);
+            outline: none;
         }
         table {
             grid-column: 2;
@@ -323,6 +348,7 @@
         li.row div {
             padding: 0.125rem 0.5rem;
             background: #3D3D3D;
+            line-height: 1rem;
         }
         li.row div:first-child {
             background: rgba(61, 61, 61, 0.5);
@@ -604,6 +630,12 @@
                 const hoverInfo = document.createElement('p');
                 hoverInfo.appendChild(document.createTextNode('Update the json file and refresh to see changes.'));
                 docs.appendChild(hoverInfo);
+                const featuresH2 = document.createElement('h2');
+                featuresH2.appendChild(document.createTextNode('Features'));
+                docs.appendChild(featuresH2);
+                const featuresP = document.createElement('p');
+                featuresP.appendChild(document.createTextNode('Validates json for common mistakes.'));
+                docs.appendChild(featuresP);
                 document.querySelector('.main').appendChild(docs);
             });
             // Render Kerning Info
@@ -717,7 +749,7 @@
                 <ul id="kernings" class="kernings"></ul>
             </li>
             <li class="appInfo">
-                Version 1.0
+                Version 0.5
             </li>
         </ul>
     </div>
