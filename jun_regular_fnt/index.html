@@ -572,30 +572,67 @@
                 toast.remove();
             }, 3000);
         }
-        function getCharKerning(previous, code) {
+        function getCharKerning(previousCode, code) {
             const spaceHorizontal = info.get('spacing')[0];
             const exists = kernings.has(`${previousCode}:${code}`);
             const amount = kernings.get(`${previousCode}:${code}`) || 0;
             return spaceHorizontal + amount;
         }
-        function getCharImage() {
-            const exists = kernings.has(`${previousCode}:${code}`);
-            const amount = kernings.get(`${previousCode}:${code}`) || 0;
-            const meta = characters.get(code);
+        function getPairingEstimate(char1Code, char2Code) {
+            // Scan left/right a max pixel width
+            const maxScan = 10;
+            const exists = kernings.has(`${char1Code}:${char2Code}`);
+            const amount = kernings.get(`${char1Code}:${char2Code}`) || 0;
+            const char1 = characters.get(char1Code);
+            const char2 = characters.get(char2Code);
             const ele = document.createElement('canvas');
             const ctx = ele.getContext('2d', { willReadFrequently: true });
-            ele.width = meta.width;
-            ele.height = meta.height;
-            ele.style.width = `${meta.width}px`;
-            ele.style.height = `${meta.height}px`;
-            ctx.clearRect(0, 0, meta.width, meta.height);
+            ele.width = char1.width + char2.width;
+            ele.height = Math.max(char1.height, char2.height);
+            ele.style.width = `${ele.width}px`;
+            ele.style.height = `${ele.height}px`;
+            ctx.clearRect(0, 0, ele.width, ele.height);
             ctx.drawImage(
-                imagePages.get(meta.page),
-                meta.x, meta.y, meta.width, meta.height,
-                0, 0, meta.width, meta.height
+                imagePages.get(char1.page),
+                char1.x, char1.y, char1.width, char1.height,
+                0, 0, char1.width, char1.height
             );
-            whiteToTransparent(ctx, meta.width, meta.height);
-            return ele.getImageData(0, 0, meta.width, meta.height);
+            ctx.drawImage(
+                imagePages.get(char2.page),
+                char2.x, char2.y, char2.width, char2.height,
+                char1.width, 0, char2.width, char2.height
+            );
+            // 1. loop height
+            // 2. loop left
+            // 3. loop right
+            // 4. add left and right
+            // 5. find lowest value
+            const debugSpacing = [];
+            let kern = 0;
+            for (let h = 0; h < ele.height; h++) {
+                let left = maxScan;
+                for (let i = 1; i <= Math.min(char1.width, maxScan); i++) {
+                    const color = ctx.getImageData(char1.width - i, h, 1, 1).data;
+                    const [r, g, b] = color;
+                    if (r === 0 && g === 0 && b === 0) {
+                        left = i;
+                        break;
+                    }
+                }
+                let right = maxScan;
+                for (let i = 0; i < Math.min(char2.width, maxScan); i++) {
+                    const color = ctx.getImageData(char1.width + i, h, 1, 1).data;
+                    const [r, g, b] = color;
+                    if (r === 0 && g === 0 && b === 0) {
+                        right = i;
+                        break;
+                    }
+                }
+                debugSpacing.push([left, right]);
+                kern = Math.min(kern, left + right);
+            }
+            console.log(char1Code, char2Code, kern, debugSpacing);
+            return kern;
         }
         function renderChar(parent, previousCode, code) {
             const exists = kernings.has(`${previousCode}:${code}`);
@@ -656,7 +693,7 @@
                 previousCode = code;
             });
         }
-        function validate() {
+        function validate(data) {
             const errors = [];
             // No duplicates
             
@@ -769,6 +806,9 @@
             });
             console.log(`Parsed ${data.kernings.length} kerning pairs`);
             validate(data);
+            const pairs = estimateKerningPairs();
+            console.log(pairs);
+            // Reset Scroll Position
             const scrollPosition = localStorage.getItem(`${file}:kernings`);
             if (scrollPosition) {
                 scroll.scrollTop = scrollPosition;
@@ -813,12 +853,31 @@
                 }
             });
         }
+        // Note each new pair adds to initial load, so careful!!!
         const kerningCodes = [
             84,
             97
         ];
+        /**
+         * Generate array with all kerning pairs and estimate.
+         * 
+         * If configured kerning is different than estimate add
+         * a warning.
+         * 
+         * Map previousCode:code { estimate, actual }
+         */
         function estimateKerningPairs() {
-
+            const kerningList = new Map();
+            const reversed = kerningCodes.toReversed();
+            kerningCodes.forEach(char1 => {
+                reversed.forEach(char2 => {
+                    kerningList.set(`${char1}:${char2}`, {
+                        estimate: getPairingEstimate(char1, char2),
+                        actual: getCharKerning(char1, char2)
+                    });
+                });
+            });
+            return kerningList;
         }
         window.addEventListener('load', () => {
             console.log(`Loading '${file}'...`);
