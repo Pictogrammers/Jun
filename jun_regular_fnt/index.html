@@ -52,12 +52,12 @@
         }
         div.links {
             display: grid;
-            grid-template-columns: auto 1fr;
+            grid-template-columns: auto auto 1fr;
             grid-template-rows: auto;
             grid-column: 2;
             grid-row: 1;
             background: #3D3D3D;
-            padding: 0.25rem 1rem 0.25rem 0.5rem;
+            padding: 0.75rem 1rem 0.25rem 0.5rem;
             position: relative;
         }
         div.links::after {
@@ -87,8 +87,6 @@
             color: #FFF;
         }
         div.links div:first-child {
-            grid-column: 1;
-            grid-row: 1;
             background: #495958;
             align-self: end;
             z-index: 1;
@@ -101,27 +99,8 @@
             display: flex;
             align-items: end;
         }
-        div.links div:first-child button {
-            background: 0;
-            border: none;
-            color: var(--app-color);
-            padding: 0;
-            margin: 0;
-            display: inline-flex;
-            height: 1.25rem;
-            width: 1.25rem;
-            margin-left: 0.25rem;
-        }
-        div.links div:first-child button:hover {
-            color: #FFF;
-        }
-        div.links div:first-child button svg {
-            width: 1.25rem;
-            height: 1.25rem;
-        }
+        
         div.links div:last-child {
-            grid-column: 2;
-            grid-row: 1;
             display: flex;
             justify-content: end;
         }
@@ -131,7 +110,7 @@
             grid-row: 2;
             background: #3D3D3D;
             color: #DFDFDF;
-            padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+            padding: 0 0.875rem 0.5rem 0.5rem;
             width: 12rem;
             position: relative;
         }
@@ -153,6 +132,10 @@
             display: grid;
             grid-template-columns: auto;
             grid-template-rows: auto auto auto auto 1fr;
+        }
+        div.tree > ul > li {
+            display: flex;
+            flex-direction: column;
         }
         div.tree > ul > li > div {
             padding: 0 0.5rem;
@@ -199,6 +182,30 @@
             border-bottom: 0.125rem solid #2B2B2B;
             border-top: 0.125rem solid #2B2B2B;
             z-index: 1;
+        }
+        div.tree > ul > li > button {
+            border: 0.125rem solid #2B2B2B;
+            border-radius: 0.25rem;
+            background: #2B2B2B;
+            color: var(--app-color);
+            display: flex;
+            align-items: center;
+            margin-top: -0.375rem;
+            margin-bottom: 0.25rem;
+            padding: 0.25rem;
+        }
+        div.tree > ul > li > button:hover {
+            color: var(--app-color);
+            background: #495958;
+        }
+        div.tree > ul > li > button:active {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2) inset;
+            text-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.25);
+        }
+        div.tree > ul > li > button svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 0.25rem;
         }
         li.appInfo {
             align-content: end;
@@ -573,10 +580,9 @@
             }, 3000);
         }
         function getCharKerning(previousCode, code) {
-            const spaceHorizontal = info.get('spacing')[0];
             const exists = kernings.has(`${previousCode}:${code}`);
             const amount = kernings.get(`${previousCode}:${code}`) || 0;
-            return spaceHorizontal + amount;
+            return amount;
         }
         function getPairingEstimate(char1Code, char2Code) {
             // Scan left/right a max pixel width
@@ -608,14 +614,14 @@
             // 4. add left and right
             // 5. find lowest value
             const debugSpacing = [];
-            let kern = 0;
+            let kern = 99;
             for (let h = 0; h < ele.height; h++) {
                 let left = maxScan;
                 for (let i = 1; i <= Math.min(char1.width, maxScan); i++) {
                     const color = ctx.getImageData(char1.width - i, h, 1, 1).data;
                     const [r, g, b] = color;
                     if (r === 0 && g === 0 && b === 0) {
-                        left = i;
+                        left = i - 1;
                         break;
                     }
                 }
@@ -631,8 +637,7 @@
                 debugSpacing.push([left, right]);
                 kern = Math.min(kern, left + right);
             }
-            console.log(char1Code, char2Code, kern, debugSpacing);
-            return kern;
+            return kern === 0 ? 0 : kern * -1;
         }
         function renderChar(parent, previousCode, code) {
             const exists = kernings.has(`${previousCode}:${code}`);
@@ -807,7 +812,20 @@
             console.log(`Parsed ${data.kernings.length} kerning pairs`);
             validate(data);
             const pairs = estimateKerningPairs();
-            console.log(pairs);
+            let ignoredPairs = 0;
+            const newPairs = new Map();
+            pairs.forEach((pair, key) => {
+                if (kernings.has(key) || pair.estimate === 0) {
+                    ignoredPairs++;
+                    return;
+                }
+                newPairs.set(key, pair);
+                console.log(key, kernings.has(key), pair);
+            });
+            console.log('ignoredPairs:', ignoredPairs);
+            newPairs.forEach((pair, key) => {
+
+            });
             // Reset Scroll Position
             const scrollPosition = localStorage.getItem(`${file}:kernings`);
             if (scrollPosition) {
@@ -855,8 +873,11 @@
         }
         // Note each new pair adds to initial load, so careful!!!
         const kerningCodes = [
+            // Latin
             84,
-            97
+            97,
+            86,
+            47
         ];
         /**
          * Generate array with all kerning pairs and estimate.
@@ -916,11 +937,11 @@
         <h1><span>BM</span> Bitmap Font Preview</h1>
     </div>
     <div class="links">
-        <div>
-            <span id="file">Loading...</span>
-            <button title="Reload" id="reload">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>
-            </button>
+        <div class="tab">
+            <button id="file">Loading...</button>
+        </div>
+        <div class="tab">
+            <button id="estimateKerning">Estimate Kerning</button>
         </div>
         <div>
             <a href="https://github.com/Templarian/">View on GitHub</a>
@@ -928,6 +949,12 @@
     </div>
     <div class="tree">
         <ul>
+            <li>
+                <button title="Reload" id="reload">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>
+                    <span>Reload JSON</span>
+                </button>
+            </li>
             <li>
                 <div>Pages</div>
                 <ul id="pages" class="pages"></ul>
