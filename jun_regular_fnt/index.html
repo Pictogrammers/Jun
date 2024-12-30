@@ -250,8 +250,8 @@
             position: relative;
             background: #FFF;
             border: 0.25rem solid rgba(73, 89, 88, 0.25);
-            border-radius: 0.25rem;
-            margin: 1rem 0 0 1rem
+            border-radius: 0.25rem 0.25rem 0 0.25rem;
+            margin: 1rem 0 1rem 1rem
         }
         div.page > img {
             image-rendering: pixelated;
@@ -263,6 +263,17 @@
         }
         div.page > div:hover {
             background: rgba(33, 150, 243, 0.3);
+        }
+        div.page > span {
+            position: absolute;
+            bottom: calc(-0.5rem + -1rem + -0.125rem);
+            right: -0.25rem;
+            white-space: nowrap;
+            background: rgba(73, 89, 88, 0.25);
+            border-radius: 0 0 0.25rem 0.25rem;
+            padding: 0.125rem 0.25rem;
+            font-size: 0.875rem;
+            color: #FFF;
         }
         div.preview {
             grid-column: 1;
@@ -788,14 +799,19 @@
                 const parentEle = document.createElement('div');
                 parentEle.classList.add('page');
                 const img = document.createElement('img');
+                const size = document.createElement('span');
                 img.addEventListener('load', (e) => {
-                    const imgWidth = img.width * 2;
+                    const origionalWidth = img.width;
+                    const origionalHeight = img.height;
+                    const imgWidth = origionalWidth * 2;
                     e.target.style.width = `${imgWidth}px`;
                     parentEle.style.width = `${imgWidth}px`;
-                    img.style.width = `${imgWidth}px`
+                    img.style.width = `${imgWidth}px`;
+                    size.textContent = `${origionalWidth} x ${origionalHeight}`;
                 });
                 img.src = page;
                 parentEle.appendChild(img);
+                parentEle.appendChild(size);
                 drawCharacters(
                     parentEle,
                     data.chars.filter(char => char.page === pageIndex)
