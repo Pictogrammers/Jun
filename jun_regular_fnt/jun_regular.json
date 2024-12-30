@@ -197,6 +197,54 @@
             "chnl": 15
         },
         {
+            "id": 8216,
+            "x": 119,
+            "y": 0,
+            "width": 3,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 0,
+            "chnl": 15
+        },
+        {
+            "id": 8217,
+            "x": 123,
+            "y": 0,
+            "width": 3,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 0,
+            "chnl": 15
+        },
+        {
+            "id": 8220,
+            "x": 127,
+            "y": 0,
+            "width": 7,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 0,
+            "chnl": 15
+        },
+        {
+            "id": 8221,
+            "x": 135,
+            "y": 0,
+            "width": 7,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 0,
+            "chnl": 15
+        },
+        {
             "id": 48,
             "x": 0,
             "y": 23,

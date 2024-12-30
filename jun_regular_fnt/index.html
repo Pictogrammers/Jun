@@ -224,12 +224,22 @@
         div.main {
             grid-column: 2;
             grid-row: 2;
+            overflow: auto;
+            background: #FFF;
+            visibility: hidden;
+        }
+        #mainTabContent {
             display: grid;
-            grid-template-columns: auto 1fr;
+            grid-template-columns: 0fr 1fr;
             grid-template-rows: auto;
             grid-gap: 0.5rem 1rem;
-            overflow: auto;
-            background: #FFF;;
+        }
+        #kernTabContent .info {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #DDD;
+        }
+        div.main.selected {
+            visibility: visible;
         }
         div.page {
             grid-column: 1;
@@ -359,7 +369,7 @@
         }
         table tr th,
         table tr td {
-            padding-left: 0.5rem;
+            padding: 0 0.25rem;
         }
         /**
          * Toast
@@ -558,6 +568,10 @@
                 box.title = `id: ${char.id}`;
                 parentEle.appendChild(box);
                 characters.set(char.id, char);
+                box.addEventListener('click', () => {
+                    const textarea = document.querySelector('textarea');
+                    textarea.value += String.fromCharCode(char.id);
+                });
             });
             console.log(`Parsed ${chars.length} characters`);
         }
@@ -583,7 +597,7 @@
             toast.classList.add('toast');
             toast.classList.add(`toast-${theme || ToastTheme.info}`);
             toast.textContent = message;
-            document.querySelector('.main').appendChild(toast);
+            document.body.appendChild(toast);
             setTimeout(() => {
                 toast.remove();
             }, 3000);
@@ -627,20 +641,58 @@
             for (let h = 0; h < ele.height; h++) {
                 let left = maxScan;
                 for (let i = 1; i <= Math.min(char1.width, maxScan); i++) {
+                    // Above, this prevents incorrect overhangs
+                    if (h !== 0) {
+                        const color = ctx.getImageData(char1.width - i, h - 1, 1, 1).data;
+                        const [r, g, b] = color;
+                        if (r === 0 && g === 0 && b === 0) {
+                            left = i - 1;
+                            break;
+                        }
+                    }
+                    // Center
                     const color = ctx.getImageData(char1.width - i, h, 1, 1).data;
                     const [r, g, b] = color;
                     if (r === 0 && g === 0 && b === 0) {
                         left = i - 1;
                         break;
                     }
+                    // Below, this prevents incorrect underhangs
+                    if (h !== ele.height - 1) {
+                        const color = ctx.getImageData(char1.width - i, h + 1, 1, 1).data;
+                        const [r, g, b] = color;
+                        if (r === 0 && g === 0 && b === 0) {
+                            left = i - 1;
+                            break;
+                        }
+                    }
                 }
                 let right = maxScan;
                 for (let i = 0; i < Math.min(char2.width, maxScan); i++) {
+                    // Above, this prevents incorrect overhangs
+                    if (h !== 0) {
+                        const color = ctx.getImageData(char1.width + i, h - 1, 1, 1).data;
+                        const [r, g, b] = color;
+                        if (r === 0 && g === 0 && b === 0) {
+                            right = i;
+                            break;
+                        }
+                    }
+                    // Center
                     const color = ctx.getImageData(char1.width + i, h, 1, 1).data;
                     const [r, g, b] = color;
                     if (r === 0 && g === 0 && b === 0) {
                         right = i;
                         break;
+                    }
+                    // Below, this prevents incorrect underhangs
+                    if (h !== ele.height - 1) {
+                        const color = ctx.getImageData(char1.width + i, h + 1, 1, 1).data;
+                        const [r, g, b] = color;
+                        if (r === 0 && g === 0 && b === 0) {
+                            right = i;
+                            break;
+                        }
                     }
                 }
                 debugSpacing.push([left, right]);
@@ -648,7 +700,7 @@
             }
             return kern === 0 ? 0 : kern * -1;
         }
-        function renderChar(parent, previousCode, code) {
+        function renderChar(parent, previousCode, code, kern = null) {
             const exists = kernings.has(`${previousCode}:${code}`);
             const amount = kernings.get(`${previousCode}:${code}`) || 0;
             const meta = characters.get(code);
@@ -667,7 +719,7 @@
             whiteToTransparent(ctx, meta.width, meta.height);
             // Default spacing
             let spaceHorizontal = info.get('spacing')[0];
-            spaceHorizontal += amount;
+            spaceHorizontal += kern === null ? amount : kern;
             let spaceVertical = info.get('spacing')[1];
             ele.style.marginLeft = `${spaceHorizontal}px`;
             ele.title = `kerning: ${spaceHorizontal}; ${code} (${previousCode})`;
@@ -737,7 +789,10 @@
                 parentEle.classList.add('page');
                 const img = document.createElement('img');
                 img.addEventListener('load', (e) => {
-                    e.target.style.width = `${e.target.offsetWidth * 2}px`;
+                    const imgWidth = img.width * 2;
+                    e.target.style.width = `${imgWidth}px`;
+                    parentEle.style.width = `${imgWidth}px`;
+                    img.style.width = `${imgWidth}px`
                 });
                 img.src = page;
                 parentEle.appendChild(img);
@@ -746,25 +801,25 @@
                     data.chars.filter(char => char.page === pageIndex)
                 );
                 document.querySelector('.main').appendChild(parentEle);
-                // Kerning Testing
-                const preview = document.createElement('div');
-                preview.classList.add('preview');
-                const textarea = document.createElement('textarea');
-                textarea.placeholder = 'Preview';
-                textarea.addEventListener('input', (e) => {
-                    const { value } = e.target;
-                    updateText(preview, value);
-                });
-                // Textarea
-                document.querySelector('.main').appendChild(textarea);
-                // Preview
-                document.querySelector('.main').appendChild(preview);
-                // Documentation
-                const docs = document.createElement('div');
-                docs.classList.add('doc');
-                updateDocs(docs);
-                document.querySelector('.main').appendChild(docs);
             });
+            // Kerning Testing
+            const preview = document.createElement('div');
+            preview.classList.add('preview');
+            const textarea = document.createElement('textarea');
+            textarea.placeholder = 'Preview';
+            textarea.addEventListener('input', (e) => {
+                const { value } = e.target;
+                updateText(preview, value);
+            });
+            // Textarea
+            document.querySelector('.main').appendChild(textarea);
+            // Preview
+            document.querySelector('.main').appendChild(preview);
+            // Documentation
+            const docs = document.createElement('div');
+            docs.classList.add('doc');
+            updateDocs(docs);
+            document.querySelector('.main').appendChild(docs);
             // Select initial page
             const currentPage = localStorage.getItem(file);
             if (currentPage && pageIndexByName.has(currentPage)) {
@@ -820,21 +875,6 @@
             });
             console.log(`Parsed ${data.kernings.length} kerning pairs`);
             validate(data);
-            const pairs = estimateKerningPairs();
-            let ignoredPairs = 0;
-            const newPairs = new Map();
-            pairs.forEach((pair, key) => {
-                if (kernings.has(key) || pair.estimate === 0) {
-                    ignoredPairs++;
-                    return;
-                }
-                newPairs.set(key, pair);
-                console.log(key, kernings.has(key), pair);
-            });
-            console.log('ignoredPairs:', ignoredPairs);
-            newPairs.forEach((pair, key) => {
-
-            });
             // Reset Scroll Position
             const scrollPosition = localStorage.getItem(`${file}:kernings`);
             if (scrollPosition) {
@@ -882,12 +922,65 @@
         }
         // Note each new pair adds to initial load, so careful!!!
         const kerningCodes = [
-            // Latin
+            // Latin a-z A-Z
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
             84,
-            97,
+            85,
             86,
+            87,
+            88,
+            89,
+            90,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            // Symbols
             47
         ];
+        // Cache
+        let isKerningListCached = false;
+        const kerningList = new Map();
         /**
          * Generate array with all kerning pairs and estimate.
          * 
@@ -897,7 +990,10 @@
          * Map previousCode:code { estimate, actual }
          */
         function estimateKerningPairs() {
-            const kerningList = new Map();
+            if (isKerningListCached) {
+                return kerningList;
+            }
+            isKerningListCached = true;
             const reversed = kerningCodes.toReversed();
             kerningCodes.forEach(char1 => {
                 reversed.forEach(char2 => {
@@ -908,6 +1004,92 @@
                 });
             });
             return kerningList;
+        }
+        function selectFileTab() {
+            document.getElementById('mainTabContent').classList.add('selected');
+            document.getElementById('kernTabContent').classList.remove('selected');
+            document.getElementById('mainTab').classList.add('selected');
+            document.getElementById('kernTab').classList.remove('selected');
+        }
+        function selectKerningTab() {
+            const kernTabContent = document.getElementById('kernTabContent');
+            document.getElementById('mainTabContent').classList.remove('selected');
+            kernTabContent.classList.add('selected');
+            document.getElementById('mainTab').classList.remove('selected');
+            document.getElementById('kernTab').classList.add('selected');
+            if (isKerningListCached) {
+                return;
+            }
+            const pairs = estimateKerningPairs();
+            let ignoredPairs = 0;
+            let existingPairs = 0;
+            const newPairs = new Map();
+            pairs.forEach((pair, key) => {
+                if (kernings.has(key)) {
+                    existingPairs++;
+                    return;
+                } else if (pair.estimate === 0) {
+                    ignoredPairs++;
+                    return;
+                }
+                newPairs.set(key, pair);
+                //console.log(key, kernings.has(key), pair);
+            });
+            const infoEle = document.createElement('div');
+            infoEle.classList.add('info');
+            infoEle.textContent = `Potential Pairs: ${newPairs.size}; IgnoredPairs: ${ignoredPairs}; Existing Pairs: ${existingPairs}`;
+            kernTabContent.appendChild(infoEle);
+            const table = document.createElement('table');
+            table.style.margin = '1rem';
+            newPairs.forEach((pair, key) => {
+                const tr = document.createElement('tr');
+                const tds = [
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), ''],
+                    [document.createElement('td'), '']
+                ];
+                const chars = key.split(':');
+                const char1 = String.fromCharCode(chars[0]);
+                const char2 = String.fromCharCode(chars[1]);
+                tds[0][1] = key;
+                tds[1][1] = pair.estimate;
+                tds[2][1] = char1;
+                tds[3][1] = char2;
+                // Preview 0
+                renderChar(tds[4][0], null, parseInt(chars[0], 10), 0);
+                renderChar(tds[4][0], parseInt(chars[0], 10), parseInt(chars[1], 10), 0);
+                // Preview -1
+                renderChar(tds[5][0], null, parseInt(chars[0], 10), 0);
+                renderChar(tds[5][0], parseInt(chars[0], 10), parseInt(chars[1], 10), -1);
+                if (pair.estimate === -1) { tds[5][0].style.background = '#8de558'; }
+                // Preview -2
+                renderChar(tds[6][0], null, parseInt(chars[0], 10), 0);
+                renderChar(tds[6][0], parseInt(chars[0], 10), parseInt(chars[1], 10), -2);
+                if (pair.estimate === -2) { tds[6][0].style.background = '#8de558'; }
+                // Preview -3
+                renderChar(tds[7][0], null, parseInt(chars[0], 10), 0);
+                renderChar(tds[7][0], parseInt(chars[0], 10), parseInt(chars[1], 10), -3);
+                if (pair.estimate === -3) { tds[7][0].style.background = '#8de558'; }
+                // Preview -4
+                renderChar(tds[8][0], null, parseInt(chars[0], 10), 0);
+                renderChar(tds[8][0], parseInt(chars[0], 10), parseInt(chars[1], 10), -4);
+                if (pair.estimate === -4) { tds[8][0].style.background = '#8de558'; }
+                tds.forEach(([td, value]) => {
+                    if (value) {
+                        td.textContent = value;
+                    }
+                    td.style.whiteSpace = 'nowrap';
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+            kernTabContent.appendChild(table);
         }
         window.addEventListener('load', () => {
             console.log(`Loading '${file}'...`);
@@ -938,6 +1120,12 @@
             document.getElementById('reload').addEventListener('click', () => {
                 window.location.reload();
             });
+            document.getElementById('file').addEventListener('click', () => {
+                selectFileTab();
+            });
+            document.getElementById('estimateKerning').addEventListener('click', () => {
+                selectKerningTab();
+            });
         });
     </script>
 </head>
@@ -946,11 +1134,11 @@
         <h1><span>BM</span> Bitmap Font Preview</h1>
     </div>
     <div class="links">
-        <div class="tab selected">
+        <div class="tab selected" id="mainTab">
             <button id="file">Loading...</button>
         </div>
-        <div class="tab">
-            <button id="estimateKerning">Estimate Kerning</button>
+        <div class="tab" id="kernTab">
+            <button id="estimateKerning" title="Processor intensive! May lag browser depending on latin characters in font.">Estimate Kerning</button>
         </div>
         <div>
             <a href="https://github.com/Templarian/">View on GitHub</a>
@@ -985,7 +1173,10 @@
             </li>
         </ul>
     </div>
-    <div class="main">
+    <div class="main selected" id="mainTabContent">
+        
+    </div>
+    <div class="main" id="kernTabContent">
         
     </div>
 </body>
