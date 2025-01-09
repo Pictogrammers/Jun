@@ -1251,6 +1251,54 @@
             "xadvance": 0,
             "page": 1,
             "chnl": 15
+        },
+        {
+            "id": 164,
+            "x": 30,
+            "y": 0,
+            "width": 8,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 165,
+            "x": 39,
+            "y": 0,
+            "width": 10,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 166,
+            "x": 50,
+            "y": 0,
+            "width": 2,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 167,
+            "x": 53,
+            "y": 0,
+            "width": 8,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
         }
     ],
     "kernings": [
@@ -1582,6 +1630,81 @@
         {
             "first": 90,
             "second": 45,
+            "amount": -1
+        },
+        {
+            "first": 48,
+            "second": 44,
+            "amount": -1
+        },
+        {
+            "first": 44,
+            "second": 48,
+            "amount": -1
+        },
+        {
+            "first": 46,
+            "second": 52,
+            "amount": -1
+        },
+        {
+            "first": 55,
+            "second": 46,
+            "amount": -2
+        },
+        {
+            "first": 49,
+            "second": 49,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 50,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 51,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 52,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 53,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 54,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 55,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 56,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 57,
+            "amount": 1
+        },
+        {
+            "first": 49,
+            "second": 48,
+            "amount": 1
+        },
+        {
+            "first": 105,
+            "second": 116,
             "amount": -1
         }
     ],

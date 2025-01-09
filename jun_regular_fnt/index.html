@@ -833,7 +833,10 @@
             const tValue = localStorage.getItem(`${file}:value`);
             if (tValue) {
                 textarea.value = tValue;
-                updateText(preview, tValue);
+                // Need the kerning table before rendering
+                requestAnimationFrame(() => {
+                    updateText(preview, tValue);
+                });
             }
             // Textarea
             document.querySelector('.main').appendChild(textarea);
@@ -1000,7 +1003,14 @@
             121,
             122,
             // Symbols
-            47
+            34, // "
+
+            47, // /
+            63, // ?
+            92, // \
+            94, // ^
+            95, // _
+            126, // ~
         ];
         // Cache
         let isKerningListCached = false;
