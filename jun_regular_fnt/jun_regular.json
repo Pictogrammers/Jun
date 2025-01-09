@@ -1299,6 +1299,102 @@
             "xadvance": 0,
             "page": 1,
             "chnl": 15
+        },
+        {
+            "id": 168,
+            "x": 62,
+            "y": 0,
+            "width": 6,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 169,
+            "x": 69,
+            "y": 0,
+            "width": 14,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 170,
+            "x": 84,
+            "y": 0,
+            "width": 4,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 171,
+            "x": 89,
+            "y": 0,
+            "width": 8,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 172,
+            "x": 98,
+            "y": 0,
+            "width": 8,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 173,
+            "x": 107,
+            "y": 0,
+            "width": 8,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 174,
+            "x": 116,
+            "y": 0,
+            "width": 14,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
+        },
+        {
+            "id": 175,
+            "x": 131,
+            "y": 0,
+            "width": 9,
+            "height": 22,
+            "xoffset": 0,
+            "yoffset": 0,
+            "xadvance": 0,
+            "page": 1,
+            "chnl": 15
         }
     ],
     "kernings": [
